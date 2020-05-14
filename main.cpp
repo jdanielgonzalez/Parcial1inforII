@@ -124,14 +124,6 @@ int main()
                 exit(1); //salir de todo
             }
 
-            //abrir flujo de lectura del archivo cantidad
-//            cantidad_lectura.open("cantidad.txt"); //abrir o crear un archivo txt.
-//            if(cantidad_lectura.fail()) //condicion que pregunta si no se pudo abrir o se produjo un error
-//            {
-//                cout<<"no se puede abrir el archivo cantidad "<<endl; //aviso
-//                exit(1); //salir de todo
-//            }
-
             //abrir flujo de lectura del archivo medida
             medida_lectura.open("medida.txt"); //abrir archivo txt para leer
             if(cantidad_lectura.fail()) //condicion que pregunta si no se pudo abrir o se produjo un error
@@ -147,7 +139,6 @@ int main()
                 cout<<"no se puede abrir el archivo cantidad temporal "<<endl; //aviso
                 exit(1); //salir de todo
             }
-
 
             //abrir flujo de lectura cantidad
             cantidad_lectura.open("cantidad.txt");
