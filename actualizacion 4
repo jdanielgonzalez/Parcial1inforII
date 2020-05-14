@@ -1,0 +1,707 @@
+#include <iostream>
+#include <fstream> //libreria de flujo de salia a un fichero
+#include <stdlib.h>
+#include <cstring>
+#include <producto.h>
+#include <vector>
+#include <iomanip>
+#include <list>
+
+bool comparar(char a[],char b[]); //compara si dos cadenas de caracteres son iguales.
+void limpiarpantalla();
+void mostrar_ID();
+void mostrar_productos();
+void actualizar_cantidad();
+void mostrar_combos();
+
+template<class H>
+void calcular_precio(H combo)
+{
+    vector<string> productos;
+    productos={"perros","hamburguesas","nachos","crispetas","gaseosas"};
+
+    double pos=0;
+    for(unsigned i=0; i<5;i++)
+    {
+        if(combo.find(productos.at(i)) != string::npos)
+        {
+            pos=combo.find(productos.at(i));
+            cout<<"encontro "<<productos.at(i)<<" en combos"<<endl;
+            cout<<"y hay "<<combo.at(pos-3)<<combo.at(pos-2)<<" "<<productos.at(i)<<endl;
+        }
+
+    }
+}
+
+using namespace std;
+
+int main()
+{
+    //saludo de bienvenidad
+
+    cout<<"######                                                           "<<endl;
+    cout<<"#     # # ###### #    # #    # ###### #    # # #####   ####      "<<endl;
+    cout<<"#     # # #      ##   # #    # #      ##   # # #    # #    #     "<<endl;
+    cout<<"######  # #####  # #  # #    # #####  # #  # # #    # #    #     "<<endl;
+    cout<<"#     # # #      #  # # #    # #      #  # # # #    # #    #     "<<endl;
+    cout<<"#     # # #      #   ##  #  #  #      #   ## # #    # #    #     "<<endl;
+    cout<<"######  # ###### #    #   ##   ###### #    # # #####   ####      "<<endl;
+    cout << endl;
+
+    //solicitud de ingreso como usuario o administrador
+
+
+    vector<string> usuario;
+    cout << "Por Favor ingrese su nombre de usuario: ";
+    char perfil[15]; //variable para controlar el perfil con el que se ingresa
+    cin>>perfil; //atrapar ese perfil
+
+    char admin[6]="admin";
+
+
+    //ingreso como usuario
+
+    if(!comparar(perfil,admin)) //condicion que me pregunta si el nombre del usuario es diferente del administrador
+    {
+        //mostrar los combos disponibles
+        mostrar_combos();
+
+        //selecionar un combo
+
+        string combo="";
+
+        ifstream combos_lectura; //crear flujo de lectura
+        string lineacombos; //variable que tomara el combo
+
+        combos_lectura.open("combos.txt"); //abrir el archivo en modo lectura
+        if(combos_lectura.fail())
+        {
+            cout<<"no se pudo abrir el archivo combos"<<endl;
+            exit(1);
+        }
+
+        int ID=0;
+        cout<<"Selecione uno de nuestros deliciosos combos: ";
+        cin>>ID;
+
+        int contador=0;
+        while(getline(combos_lectura,lineacombos))
+        {
+            if(contador==ID)
+            {
+                combo.append(lineacombos);
+            }
+            contador++;
+        }
+
+        cout<<"usted eligio el combo numero "<<ID<<": "<<combo<<endl;
+
+        calcular_precio(combo);
+
+
+
+    }
+
+    //ingreso como administrador
+
+    else
+    {
+        cout<<"ingrese la clave: ";
+        char password[10]="admin2019";
+        char c[10];
+        cin>>c;
+        while(!comparar(c,password))
+        {
+            cout<<"clave incorrecta"<<endl;
+            cout<<"ingrese la clave: ";
+            cin>>c;
+        }
+
+
+        //menu para cuando entre el administrador
+        limpiarpantalla();
+        cout<<"Aministrador"<<endl;
+        cout<<endl;
+
+
+        int op=0;
+        cout <<"1. Acturalizar inventario"<<endl; //mensaje en pantalla
+        cout <<"2. Crear combos"<<endl; //mensaje en pantalla
+        cout <<"3. generar reportes de ventas"<<endl; //mensaje en pantalla
+        cout<<"Opcion: ";
+        cin >> op;
+        while(op!=0)
+        {
+            switch (op) // switch para tener un menu
+            {
+            // actualizar inventario
+            case 1:
+            {
+                string direcioninventario ="D:/DANIEL/cosas universidad/informaticaII/parcial1/archivos/inventario.txt";
+                limpiarpantalla();
+
+                cout<<"Administrador"<<endl;
+
+                //leer archivo ID
+
+                mostrar_ID();
+
+                // selecionar los productos para modificar
+
+                actualizar_cantidad();
+            }
+                break;
+
+            //crear combos
+            case 2:
+            {
+                limpiarpantalla(); //limpiar pantala
+                cout<<"Administrador"<<endl; //mostrar el perfil
+                cout<<endl;
+                cout<<"crear los combos"; //la opcion en la que se encuentra
+
+                string productos;
+                mostrar_productos(); //funcion que me imprime los productos disponibles
+
+                //crear los combos
+                int control=1; //variable de control
+                int ID=0; //variable para selecionar el producto a agregar al combo
+                while(control!=403) //ciclo que corre hasta que el administrador cree el combo
+                {
+                    ifstream productos_lectura; //abrir flujo de lectura
+                    string lineaproductos; //string para guardar los prooductos
+                    productos_lectura.open("productos.txt"); //abir archivo productos
+                    if(productos_lectura.fail()) //condicional que me pregunta si hubo error
+                    {
+                        cout<<"no se pudo abrir el archivo productos"<<endl;
+                        exit(1);
+                    }
+                    string cantidadproductos=""; //variable cantidad de un producto a agregar en un combo (ej 2 perros)
+
+                    int valido=0;
+                    while(valido==0) //ciclo que verifica que la cantidad de productos ingreados en un combo si esten en el inventario
+                    {
+                        cout<<"Ingrese el ID del producto que desea agregar al combo y 404 para terminar y salir"<<endl; //solicitar al administrador
+                        cout<<"ID: "; //mostrar ID
+                        cin>>ID; //atrapar ID
+                        ID=ID-1; //restarle uno al ID porque no hay titulo por lo tanto la linea empieza en 0
+                        control=ID; //igualar el control al ID
+
+                        if(control!=403)
+                        {
+                            cout<<"ingrese la cantidad que desea agregar: ";
+                            cin>>cantidadproductos;
+                        }
+
+                        if(ID==403)
+                        {
+                            break;
+                        }
+                        ifstream cantidad_lectura;
+                        cantidad_lectura.open("cantidad.txt");
+                        string lineacantidad;
+
+                        if(ID==0) //preguntar si el producto selecionado fue el perro
+                        {
+                            int linea=0; //variable que me controla la linea en la que estoy parado
+                            while(getline(cantidad_lectura,lineacantidad)) //ciclo que lee todo el archivo cantidad
+                            {
+                                if(linea==2) //linea 2= cantidad de panes para perro
+                                {
+                                    if(stod(cantidadproductos)<=stod(lineacantidad))//condicion que pregunta si hay suficientes panes para armar la cantidad de perros deseados
+                                    {
+                                        valido=1;
+                                    }
+                                }
+
+                                if(linea==3) //linea 3= cantidad de salchichas para perro
+                                {
+                                    if(stod(cantidadproductos)<=stod(lineacantidad))//condicion que pregunta si hay suficientes salchichas para armar la cantidad de perros deseados
+                                    {
+                                        valido=1;
+                                    }
+                                }
+
+                                if(linea==6) //linea 6 = cantidad de salsa
+                                {
+                                    if(stod(cantidadproductos)*30<=stod(lineacantidad))//condicion que pregunta si hay suficientes salchichas para armar la cantidad de perros deseados
+                                    {
+                                        valido=1;
+                                    }
+                                    else
+                                    {
+                                        valido=0;
+                                    }
+                                }
+                                linea++;
+                            }
+                        }
+
+                        if(ID==1) //preguntar si el producto selecionado fue la hamburgesa
+                        {
+                            int linea=0; //variable que me controla la linea en la que estoy parado
+                            while(getline(cantidad_lectura,lineacantidad)) //ciclo que lee todo el archivo cantidad
+                            {
+                                if(linea==4) //linea 4= cantidad de panes para hamburgesa
+                                {
+                                    if(stod(cantidadproductos)<=stod(lineacantidad))//condicion que pregunta si hay suficientes panes para armar la cantidad de perros deseados
+                                    {
+                                        valido=1;
+                                    }
+                                }
+
+                                if(linea==5) //linea 5 = cantidad de carne de hamburgesa
+                                {
+                                    if(stod(cantidadproductos)<=stod(lineacantidad))//condicion que pregunta si hay suficientes salchichas para armar la cantidad de perros deseados
+                                    {
+                                        valido=1;
+                                    }
+                                }
+
+                                if(linea==6) //linea 6= cantidad de salsa
+                                {
+                                    if(stod(cantidadproductos)*30<=stod(lineacantidad))//condicion que pregunta si hay suficientes salchichas para armar la cantidad de perros deseados
+                                    {
+                                        valido=1;
+                                    }
+                                    else
+                                    {
+                                        valido=0;
+                                    }
+                                }
+                                linea++;
+                            }
+                        }
+
+                        if(ID==2) //preguntar si el producto selecionado fue la los nachos
+                        {
+                            int linea=0; //variable que me controla la linea en la que estoy parado
+                            while(getline(cantidad_lectura,lineacantidad)) //ciclo que lee todo el archivo cantidad
+                            {
+                                if(linea==7) //linea 7= cantidad de nachos en gramos
+                                {
+                                    if(stod(cantidadproductos)*150<=stod(lineacantidad))//condicion que pregunta si hay suficientes panes para armar la cantidad de perros deseados
+                                    {
+                                        valido=1;
+                                    }
+                                }
+
+
+                                if(linea==8) //linea 8= cantidad de salsa de queso
+                                {
+                                    if(stod(cantidadproductos)*30<=stod(lineacantidad))//condicion que pregunta si hay suficientes salchichas para armar la cantidad de perros deseados
+                                    {
+                                        valido=1;
+                                    }
+                                    else
+                                    {
+                                        valido=0;
+                                    }
+                                }
+                                linea++;
+                            }
+                        }
+
+                        if(ID==3) //preguntar si el producto selecionado fue las crispetas
+                        {
+                            int linea=0; //variable que me controla la linea en la que estoy parado
+                            while(getline(cantidad_lectura,lineacantidad)) //ciclo que lee todo el archivo cantidad
+                            {
+                                if(linea==9) //linea 9= cantidad de crispetas en gramos
+                                {
+                                    if(stod(cantidadproductos)*150<=stod(lineacantidad))//condicion que pregunta si hay suficientes panes para armar la cantidad de perros deseados
+                                    {
+                                        valido=1;
+                                    }
+                                }
+
+
+                                if(linea==10) //linea 10= cantidad de baldes de crispetas
+                                {
+                                    if(stod(cantidadproductos)<=stod(lineacantidad))//condicion que pregunta si hay suficientes salchichas para armar la cantidad de perros deseados
+                                    {
+                                        valido=1;
+                                    }
+                                    else
+                                    {
+                                        valido=0;
+                                    }
+                                }
+                                linea++;
+                            }
+                        }
+
+                        if(ID==4) //preguntar si el producto selecionado fue la gaseosa
+                        {
+                            int linea=0; //variable que me controla la linea en la que estoy parado
+                            while(getline(cantidad_lectura,lineacantidad)) //ciclo que lee todo el archivo cantidad
+                            {
+                                if(linea==1) //linea 1= cantidad de vasos
+                                {
+                                    if(stod(cantidadproductos)<=stod(lineacantidad))//condicion que pregunta si hay suficientes panes para armar la cantidad de perros deseados
+                                    {
+                                        valido=1;
+                                    }
+                                }
+
+                                if(linea==11) //linea 1= cantidad de gaseosa
+                                {
+                                    if(stod(cantidadproductos)*70<=stod(lineacantidad))//condicion que pregunta si hay suficientes salchichas para armar la cantidad de perros deseados
+                                    {
+                                        valido=1;
+                                    }
+                                    else
+                                    {
+                                        valido=0;
+                                    }
+                                }
+                                linea++;
+                            }
+                        }
+
+                        cantidad_lectura.close();
+                        if(valido==0)
+                        {
+                            cout<<"no se puede armar el combo por falta de inventario"<<endl;
+                        }
+                    }
+
+                    int contador=0; //variable contadora
+                    while(getline(productos_lectura,lineaproductos)) //ciclo que lee todo el archivo com
+                    {
+                        if(contador==ID)
+                        {
+                            productos.append(cantidadproductos);
+                            productos.append(" ");
+                            productos.append(lineaproductos);
+                            productos.append(" ");
+                        }
+                        contador++;
+                    }
+                    cout<<"actualizacion..."<<endl;
+                    cout<<"combo: "<<productos<<endl;
+                }
+
+                limpiarpantalla();
+
+                cout<<"combo agregado: "<<productos<<" "<<endl;
+                cout<<endl;
+
+
+                // actualizar registro de combos
+
+
+                ofstream combos_escritura;//flujo de escritura del archivo combos
+                combos_escritura.open("combos.txt",ios::app); //abrir archvio al final
+                if(combos_escritura.fail())
+                {
+                    cout<<"no se pudo abrir el archivo combos temporal"<<endl;
+                    exit(1);
+                }
+
+                combos_escritura<<'\n'; //agregar salto de linea
+                combos_escritura<<productos; //agregar el combo
+                combos_escritura.close(); //cerrar flujo de escritura
+
+            }
+                break;
+
+            case 3:
+            {
+                limpiarpantalla();
+                cout<<"generar reporte de ventas"<<endl;
+            }
+                break;
+
+            default:
+                cout << "opcion no validad"<< endl;
+                break;
+            }
+
+            cout<<"Administrador"<<endl;
+            cout<<endl;
+            cout <<"1. Acturalizar inventario"<<endl; //mensaje en pantalla
+            cout <<"2. Crear combos"<<endl; //mensaje en pantalla
+            cout <<"3. generar reportes de ventas"<<endl; //mensaje en pantalla
+            cout<<"Opcion: ";
+            cin >> op;
+       }
+
+
+        }
+
+    cout<<"sesion cerrada"<<endl;
+    }
+
+
+//funcion que me compara dos char y me devuelve un true si son la misma
+bool comparar(char a[],char b[])
+{
+    if(strlen(a)!=strlen(b))
+    {
+        return false;
+    }
+    else
+    {
+        int i=0;
+        while(a[i]!='\0')
+        {
+            if(a[i]!=b[i])
+            {
+                return false;
+            }
+            i++;
+        }
+        return true;
+    }
+
+}
+
+//funcion que limpia la pantalla
+void limpiarpantalla()
+{
+    system("cls");
+}
+
+//funcion que muestra en inventario
+void mostrar_ID()
+{
+    ifstream inventario_lectura; //flujo de lectura del inventario
+    string inventario; //string para guardar el nombre del producto
+    //leer archivo ID
+    inventario_lectura.open("ID.txt"); //abrir o crear un archivo txt.
+    if(inventario_lectura.fail()) //condicion que pregunta si no se pudo abrir o se produjo un error
+    {
+        cout<<"no se puede abrir el archivo"<<endl; //aviso
+        exit(1); //salir de todo
+    }
+
+    ifstream cantidad_lectura; //flujo de lectura del inventario
+    string lineacantidad; //string para guardar el nombre del producto
+    //leer archivo cantidad
+    cantidad_lectura.open("cantidad.txt"); //abrir o crear un archivo txt.
+    if(cantidad_lectura.fail()) //condicion que pregunta si no se pudo abrir o se produjo un error
+    {
+        cout<<"no se puede abrir el archivo cantidad"<<endl; //aviso
+        exit(1); //salir de todo
+    }
+
+    ifstream medida_lectura; //flujo de lectura de archivo medida
+    string lineamedida; //string para guardar el nombre del producto
+    //leer archivo cantidad
+    medida_lectura.open("medida.txt"); //abrir o crear un archivo txt.
+    if(medida_lectura.fail()) //condicion que pregunta si no se pudo abrir o se produjo un error
+    {
+        cout<<"no se puede abrir el archivo medida"<<endl; //aviso
+        exit(1); //salir de todo
+    }
+
+    cout<<endl; //salto de linea
+
+    //ciclo para mostrar los nombres y el ID del inventario
+
+    while(!inventario_lectura.eof())
+    {
+        getline(cantidad_lectura,lineacantidad);
+        getline(inventario_lectura,inventario);
+        getline(medida_lectura,lineamedida);
+        cout<<inventario;
+        cout<<" "<<lineacantidad;
+        cout<<" "<<lineamedida<<endl;
+    }
+
+    // cerrar flujo de lectura del archivo ID
+    inventario_lectura.close();
+    cantidad_lectura.close();
+    medida_lectura.close();
+}
+
+//funcion que muestra los productos que se venden
+void mostrar_productos()
+{
+    ifstream inventario_lectura; //flujo de lectura del inventario
+    string inventario; //string para guardar el nombre del producto
+    ///leer archivo ID
+    inventario_lectura.open("productos.txt"); //abrir o crear un archivo txt.
+    if(inventario_lectura.fail()) //condicion que pregunta si no se pudo abrir o se produjo un error
+    {
+        cout<<"no se puede abrir el archivo"<<endl; //aviso
+        exit(1); //salir de todo
+    }
+    cout<<endl; //salto de linea
+
+    //ciclo para mostrar los nombres y el ID del inventario
+    int indice=1;
+    cout<<"ID Producto"<<endl;
+    while(!inventario_lectura.eof())
+    {
+        getline(inventario_lectura,inventario);
+        cout<<indice<<" "<<inventario<<endl;
+        indice++;
+    }
+
+    // cerrar flujo de lectura del archivo ID
+    inventario_lectura.close();
+}
+
+//funcion que me actualiza la cantidad de los productos en el inventario
+void actualizar_cantidad()
+{
+    string lineainventario;//variable que me guarda el producto
+    string lineacantidad;//variable que me guarda la cantidad del producto
+    string lineamedida;//variable que me guarda la cantidad del producto
+
+    ifstream inventario_lectura; //flujo de lectura del inventario
+    string inventario; //string para guardar el nombre del producto
+
+    ifstream cantidad_lectura; //flujo de lectura de la cantidad del producto
+    ofstream cantidad_escritura;
+    string cantidad; //string para guardar la cantidad del producto
+
+    ifstream medida_lectura; //flujo de lectura de la medida del producto
+    string medida; //string para guardar la medida del producto
+
+    ofstream cantidadtemporal_escritura;
+    ifstream cantidadtemporal_lectura;
+    string lineacantidadtemporal;
+
+    int ID=0; //inicializo variable ID
+    int control=0; //variable que me controla el cerrado de la actualizacion del inventario
+    while(control != 404) //ciclo que me corre hasta que el administrador decidad cerrar sesion
+    {
+        producto producto1; //clase producto
+        int contador=0; //contador de lineas en el archivo txt
+        cout<<"Ingrese el ID del producto que desea actualizar o 404 para cerrar sesion y guardar cambios."<<endl; //solicitud sobre cual producto va a actualizar
+        cout<<"ID: "; //solicitud del ID del producto
+        cin>>ID; //atrapar ese ID
+        control=ID; //igualar control al ID
+
+        //abrir flujo de lectura del archivo inventario
+        inventario_lectura.open("inventario.txt"); //abrir o crear un archivo txt.
+        if(inventario_lectura.fail()) //condicion que pregunta si no se pudo abrir o se produjo un error
+        {
+            cout<<"no se puede abrir el archivo inventario"<<endl; //aviso
+            exit(1); //salir de todo
+        }
+
+        //abrir flujo de lectura del archivo medida
+        medida_lectura.open("medida.txt"); //abrir archivo txt para leer
+        if(cantidad_lectura.fail()) //condicion que pregunta si no se pudo abrir o se produjo un error
+        {
+            cout<<"no se puede abrir el archivo medida "<<endl; //aviso
+            exit(1); //salir de todo
+        }
+
+        //abrir flujo de ecritura en cantidad temporal
+        cantidadtemporal_escritura.open("cantidadtemporal.txt"); //abrir archivo txt para leer
+        if(cantidadtemporal_escritura.fail()) //condicion que pregunta si no se pudo abrir o se produjo un error
+        {
+            cout<<"no se puede abrir el archivo cantidad temporal "<<endl; //aviso
+            exit(1); //salir de todo
+        }
+
+        //abrir flujo de lectura cantidad
+        cantidad_lectura.open("cantidad.txt");
+        if(cantidad_lectura.fail()) //condicion que pregunta si no se pudo abrir o se produjo un error
+        {
+            cout<<"no se puede abrir el archivo cantidad  "<<endl; //aviso
+            exit(1); //salir de todo
+        }
+        ///ciclo para actualizar el inventario
+        ///
+        double cantidadnueva = 0; //creo string para la cantidad nueva
+
+        while(getline(inventario_lectura, lineainventario)) //ciclo que recorre todo el inventario y atrapa linea por linea
+        {
+            getline(cantidad_lectura, lineacantidad);  //atrapa la cantidad linea por linea
+            getline(medida_lectura,lineamedida); //atrapa la medida linea por linea
+            if(contador==ID) //condicion para saber si ya esta en la linea que solicito el administrador
+            {
+                producto1.setNombre(lineainventario); //clase producto, agrego el nombre
+                producto1.setCantidad(std::stod(lineacantidad)); //clase produto agrego cantidad
+                producto1.setMedida(lineamedida); //clase producto agrego medida
+                cout<<"Hay "<<producto1.getCantidad()<<" "<<producto1.getMedida()<<" de "<<producto1.getNombre()<<" en el inventario actualmente"<<endl; //informo cantidad actual de x producto
+                cout<<"cuantos "<<producto1.getNombre()<<"desea agregar: "; //solicito que se ingrese la cantidad nueva de x producto
+                cin>>cantidadnueva; //tomo el string
+                producto1.setCantidad(producto1.getCantidad()+cantidadnueva);
+                //string prueba="12345";
+                cantidadtemporal_escritura<<std::to_string(producto1.getCantidad()); //guardo la cantidad nueva en el archivo temporal
+                cantidadtemporal_escritura<<'\n'; //agrego salto de linea
+            }
+            if(contador!=ID) //condicion que pregunta si el ID es diferente del contador (esto para no repetir agregar el valor nuevo, si no para sobreescribirlo)
+            {
+                cantidadtemporal_escritura<<lineacantidad; //tomo la linea y la escribo en el archivo tal cual
+                cantidadtemporal_escritura<<'\n'; //agrego salto de linea
+            }
+            contador++; //sumo al contador
+        }
+        cantidad_lectura.close(); //cierro flujo de lectura de cantidad
+        inventario_lectura.close(); //cierro flujo de lectura de inventario
+        medida_lectura.close(); //cierro flujo de lectura de medida
+        cantidadtemporal_escritura.close(); //cierro flujo de escritura de cantdad temporal
+
+        ///actualizacion del archvo cantidad
+
+        cantidad_escritura.open("cantidad.txt"); //abro flujo de escritura del archivo cantidad
+        if(cantidad_escritura.fail()) //condicion que pregunta si no se pudo abrir o se produjo un error
+        {
+            cout<<"no se puede abrir el archivo cantidad  "<<endl; //aviso
+            exit(1); //salir de todo
+        }
+        cantidadtemporal_lectura.open("cantidadtemporal.txt"); //abro flujo de lectura del archivo cantidadtemporal
+        if(cantidadtemporal_lectura.fail()) //condicion que pregunta si no se pudo abrir o se produjo un error
+        {
+            cout<<"no se puede abrir el archivo cantidad  "<<endl; //aviso
+            exit(1); //salir de todo
+        }
+        while(getline(cantidadtemporal_lectura, lineacantidadtemporal)) //ciclo que me lee todo el archivo linea por linea
+        {
+            cantidad_escritura<<lineacantidadtemporal; //agrego cada linea al archivo cantidad
+            cantidad_escritura<<'\n'; //agrego salto de linea
+        }
+        cantidad_escritura.close(); //cierro flujo de escritura del archivo cantidad
+        limpiarpantalla();
+        mostrar_ID();
+        cout<<"actualizacion..."<<endl;
+        cout<<"Hay "<<producto1.getCantidad()<<" "<<producto1.getMedida()<<" de "<<producto1.getNombre()<<" en el inventario actualmente"<<endl; //informo cantidad actual de x producto
+        cantidadtemporal_lectura.close(); //cierro flujo de lectura del archivo cantidadtemporal
+    }
+    limpiarpantalla();
+}
+
+void mostrar_combos()
+{
+    ifstream combos_lectura; //flujo de lectura del inventario
+    string combos; //string para guardar el nombre del producto
+    ///leer archivo ID
+    combos_lectura.open("combos.txt"); //abrir o crear un archivo txt.
+    if(combos_lectura.fail()) //condicion que pregunta si no se pudo abrir o se produjo un error
+    {
+        cout<<"no se puede abrir el archivo"<<endl; //aviso
+        exit(1); //salir de todo
+    }
+    cout<<endl; //salto de linea
+
+    //ciclo para mostrar los nombres y el ID del inventario
+    int indice=0;
+    while(!combos_lectura.eof())
+    {
+        getline(combos_lectura,combos);
+        if(indice==0)
+        {
+            cout<<"Disfruta de los mejores combos disponibles: "<<endl;
+            cout<<endl;
+
+        }
+        else
+        {
+            cout<<"combo "<<indice<<"----> "<<combos<<endl;
+
+        }
+
+        indice++;
+    }
+
+    // cerrar flujo de lectura del archivo ID
+    combos_lectura.close();
+}
